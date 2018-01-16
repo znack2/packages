@@ -30,7 +30,7 @@ vendor/
 Via Composer
 
 ``` bash
-$ composer require :vendor/:package_name
+$ composer require usedesk/emailIntegration
 ```
 
 ## Usage
@@ -39,6 +39,31 @@ $ composer require :vendor/:package_name
 $skeleton = new League\Skeleton();
 echo $skeleton->echoPhrase('Hello, League!');
 ```
+
+# Configuration
+
+To start using this package, you have to give the following info in your `.env` variables:
+
+```
+COCONUT_API_KEY=your_coconut_api_key
+
+# used for local development
+NGROK_TUNNEL_URL=ngrok_url
+
+# currently only Amazon S3 is supported
+COCONUT_CDN=s3
+
+AWS_KEY=your_s3_key
+AWS_SECRET=your_s3_secret
+AWS_BUCKET=your_s3_bucket
+```
+
+Additionally you can change the default paths for you manipulated video files by published the configuration for this package.
+You will then be able to modify  `videos_source_path` and `videos_destination_path` .
+
+
+
+
 
 ## Change log
 

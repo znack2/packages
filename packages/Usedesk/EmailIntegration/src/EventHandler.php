@@ -1,0 +1,124 @@
+<?php
+
+namespace Usedesk\EmailIntegration;
+
+use Usedesk\EmailIntegration\Events\Event;
+use Usedesk\EmailIntegration\Events\CheckSucceeded;
+use Usedesk\EmailIntegration\Events\CheckWarning;
+use Usedesk\EmailIntegration\Events\CheckFailed;
+
+use Illuminate\Config\Repository;
+use Illuminate\Contracts\Events\Dispatcher;
+
+class EventHandler
+{
+    /** @var \Illuminate\Config\Repository */
+    protected $config;
+
+    public function __construct(Repository $config)
+    {
+        $this->config = $config;
+    }
+    /**
+     * subscribe
+     *
+     * @param string $phrase Phrase to return
+     *
+     * @return void
+     */
+    public function subscribe(Dispatcher $events)
+    {
+        $events->listen($this->allEventClasses(), function ($event) {
+            $notification = $this->determineNotification($event);
+
+            if (! $notification) {
+                return;
+            }
+
+            if ($this->concernsSuccess($event)) {
+                $notification->getCheck()->stopThrottlingFailedNotifications();
+            }
+
+            if ($notification->shouldSend()) {
+                $notifiable = $this->determineNotifiable();
+
+                $notifiable->setEvent($event);
+
+                $notifiable->notify($notification);
+            }
+
+            if (! $this->concernsSuccess($event) && ! $notification->getCheck()->isThrottlingFailedNotifications()) {
+                $notification->getCheck()->startThrottlingFailedNotifications();
+            }
+        });
+    }
+    /**
+     * determineNotifiable
+     *
+     * @param string $phrase Phrase to return
+     *
+     * @return app
+     */
+    protected function determineNotifiable()
+    {
+        $notifiableClass = $this->config->get('server-monitor.notifications.notifiable');
+
+        return app($notifiableClass);
+    }
+    /**
+     * determineNotification
+     *
+     * @param string $phrase Phrase to return
+     *
+     * @return void
+     */
+    protected function determineNotification($event): ?BaseNotification
+    {
+        $eventName = class_basename($event);
+
+        $notificationClass = collect($this->config->get('server-monitor.notifications.notifications'))
+            ->filter(function (array $notificationChannels) {
+                return count($notificationChannels);
+            })
+            ->keys()
+            ->first(function ($notificationClass) use ($eventName) {
+                $notificationName = class_basename($notificationClass);
+
+                return $notificationName === $eventName;
+            });
+
+        if ($notificationClass) {
+            return app($notificationClass)->setEvent($event);
+        }
+
+        return null;
+    }
+    /**
+     * allEventClasses
+     *
+     * @param string $phrase Phrase to return
+     *
+     * @return array
+     */
+    protected function allEventClasses(): array
+    {
+        return [
+            CheckSucceeded::class,
+            CheckWarning::class,
+            CheckFailed::class,
+        ];
+    }
+    /**
+     * concernsSuccess
+     *
+     * @param string $phrase Phrase to return
+     *
+     * @return void
+     */
+    protected function concernsSuccess(Event $event): bool
+    {
+        return in_array(get_class($event), [
+            CheckSucceeded::class,
+        ]);
+    }
+}

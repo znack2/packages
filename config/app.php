@@ -177,6 +177,8 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        Usedesk\FbIntegration\FbIntegrationServiceProvider::class,
+
         Usedesk\EmailIntegration\EmailIntegrationServiceProvider::class,
 
     ],
