@@ -177,10 +177,9 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        Usedesk\VkIntegration\VkIntegrationServiceProvider::class,
         Usedesk\FbIntegration\FbIntegrationServiceProvider::class,
-
         Usedesk\EmailIntegration\EmailIntegrationServiceProvider::class,
-
     ],
 
     /*

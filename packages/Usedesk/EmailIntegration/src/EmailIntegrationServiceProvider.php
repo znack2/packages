@@ -2,17 +2,27 @@
 
 namespace Usedesk\EmailIntegration;
 
-// use Usedesk\EmailIntegration\Commands\Name;
+// use Usedesk\EmailIntegration\Commands\AddWebhook;
+// use Usedesk\EmailIntegration\Commands\ListWebhooks;
+// use Usedesk\EmailIntegration\Commands\DeleteWebhook;
 use Usedesk\EmailIntegration\EventHandler;
+use Usedesk\EmailIntegration\Jobs\TriggerRequest;
 
-use DateTime;
+
+use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 
 use \Webklex\IMAP\Providers\LaravelServiceProvider;
 
 class EmailIntegrationServiceProvider extends ServiceProvider
 {
+    use DispatchesJobs;
+
     /**
      * Perform post-registration booting of services.(any routes, event listeners, or any other functionality you want to add to your package. have to be done before all other code is executed.)
      *
@@ -64,7 +74,7 @@ class EmailIntegrationServiceProvider extends ServiceProvider
     {
         $router->group(['namespace' => 'Usedesk\EmailIntegration\Http\Controllers'], function($router)
         {
-            require __DIR__.'/Http/routes/routes.php';
+            require __DIR__.'/Http/routes.php';
         });
     }
     /**
@@ -100,16 +110,19 @@ class EmailIntegrationServiceProvider extends ServiceProvider
     protected function setupMigrations(string $className, string $fileName, int $timestampSuffix)
     {
          if (! class_exists($className)) {//'CreateNameTables'
-            // $timestamp = date('Y_m_d_His', time());
+         
+            //date('Y_m_d_His', time());
             $timestamp = (new DateTime())->format('Y_m_d_His').$timestampSuffix;
 
-            // $this->publishes([
-            //     __DIR__.'/../database/migrations/create_name_tables.php.stub' => $this->app->databasePath()."/migrations/{$timestamp}_create_name_tables.php",
-            // ], 'migrations');
+            // __DIR__.'/../database/migrations';
+            // __DIR__.'/../database/migrations/create_name_tables.php.stub'
+            $migrationPath = __DIR__."/../database/migrations/{$fileName}.php.stub";
+            
+            // base_path('database/migrations');
+            // $this->app->databasePath()."/migrations/{$timestamp}_create_name_tables.php"
+            $path = database_path('migrations/'.$timestamp."_{$fileName}.php");
 
-            $this->publishes([
-                __DIR__."/../database/migrations/{$fileName}.php.stub" => database_path('migrations/'.$timestamp."_{$fileName}.php"),
-            ], 'migrations');
+            $this->publishes([$migrationPath => $path,], 'migrations');
         }
     }
     /**
@@ -137,6 +150,10 @@ class EmailIntegrationServiceProvider extends ServiceProvider
     protected function setupEvents(string $commandName,string $callName)
     {
         $this->app['events']->subscribe(EventHandler::class);
+
+        // foreach ($this->listeners as $eventName) {
+        //     $this->app['events']->listen($eventName, [$this, 'handleEvent']);
+        // }
     }
 
     /**
@@ -145,7 +162,7 @@ class EmailIntegrationServiceProvider extends ServiceProvider
      */
     protected function setupMiddleware()
     {
-        $this->app['router']->middleware('CanViewCRM', 'Rubenwouters\CrmLauncher\Middleware\CanViewCRM');
+      $this->app['router']->middleware('social', 'Usedesk\EmailIntegration\Middlewares\Social');
     }
     /**
      * Register any package services.bind any classes or functionality into the app container

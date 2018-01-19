@@ -9,6 +9,7 @@
         "fideloper/proxy": "~3.3",
         "laravel/framework": "5.5.*",
         "usedesk/EmailIntegration": "@dev",
+        "usedesk/VkIntegration": "@dev",
         "usedesk/FbIntegration": "@dev",
         "laravel/tinker": "~1.0"
     },
@@ -42,9 +43,16 @@
     },
     "repositories": [{
         "type": "path",   
-        "url": "packages/Usedesk/EmailIntegration",
+        "url": "packages/Usedesk/EmailIntegration"
+        
+    },{
+        "type": "path",   
+        "url": "packages/Usedesk/VkIntegration"
+    },{
+        "type": "path",   
         "url": "packages/Usedesk/FbIntegration"
-    }],
+    }
+    ],
     "scripts": {
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""

@@ -5,6 +5,7 @@ namespace Usedesk\EmailIntegration\Test\Integration\Events;
 use Illuminate\Support\Facades\Event;
 
 use Usedesk\EmailIntegration\Events\IntegrationHasFailed;
+use Usedesk\EmailIntegration\Events\AttachmentHasBeenAdded;
 use Usedesk\EmailIntegration\Test\Integration\TestCase;
 
 class IntegrationHasFailedTest extends TestCase
@@ -18,7 +19,7 @@ class IntegrationHasFailedTest extends TestCase
     public function it_will_fire_the_media_added_event()
     {
         $this->testModel->addMedia($this->getTestJpg())->toMediaCollection();
-        Event::assertDispatched(MediaHasBeenAdded::class);
+        Event::assertDispatched(AttachmentHasBeenAdded::class);
     }
 
     /** @test */

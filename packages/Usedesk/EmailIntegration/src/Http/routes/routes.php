@@ -1,15 +1,10 @@
 <?php
 
-Route::get('package', function(){
-	echo 'Hello from the usedesk package!';
-});
 
+//syncEngine
 
+Route::post('channels/sync/add',  	  	['uses' => 'SyncChannelsController@add',  	'as' => 'sync.add']);
+Route::put('channels/sync/edit/{id}', 	['uses' => 'SyncChannelsController@update', 'as' => 'sync.update']);
+// Route::any('channels/sync/', 			['uses' => 'SyncChannelsController@syncEngine']);
+Route::any('channels/sync/', 			['uses' => 'SyncChannelsController@storeFrom','as' => 'sync.update']);
 
-    //syncEngine
-// $api->get('/settings/channels/sync/create/', ['uses' => 'SyncChannelsController@getEditSyncEngine', 'as' => 'user.company_email_channels.get_create_sync_engine']);
-// $api->post('/settings/channels/sync/create/', ['uses' => 'SyncChannelsController@postEditSyncEngine', 'as' => 'user.company_email_channels.post_create_sync_engine']);
-// $api->get('/settings/channels/sync/edit/{id}', ['uses' => 'SyncChannelsController@getEditSyncEngine', 'as' => 'user.company_email_channels.get_edit_sync_engine']);
-// $api->post('/settings/channels/sync/edit/{id}', ['uses' => 'SyncChannelsController@postEditSyncEngine', 'as' => 'user.company_email_channels.post_edit_sync_engine']);
-// $api->any('/v1/syncEngine', ['uses' => 'SyncChannelsController@syncEngine']);
-// $api->any('/v1/syncEngine', ['uses' => 'SyncChannelsController@saveFromSyncEngine']);
